@@ -1,4 +1,5 @@
 package Contoller;
+import java.util.Random;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -18,8 +19,8 @@ public class AntriKeluar extends Machine {
 
     //private int uang;
     private int time; // dalam menit
-    //private boolean dompet; // kondisi kalo dompet ada di tas atau tidak
-
+    //private boolean tiket; // kondisi kalo tiket ada di dompet atau tidak
+    private boolean tiket;
     /**
      * Variable untuk para pengendara. Disimpan dalam array merepresentasikan
      * setiap indexnya adalah nomor pelanggan.
@@ -50,22 +51,19 @@ public class AntriKeluar extends Machine {
 
     @Override
     public void proses() {
-        for (int i = 0; i < this.rangeData; i++) {
-            // kondisi tidak pakai uang pas
-            if (this.uang[i] > 2000) {
-                this.service[i] = this.time + 5;
-            }else if(this.uang[i]==2000){
-                this.service[i] = this.time + 2;
-            // pas mu bayar ternyata ga punya uang, ngocek2 saku ga ada
-            // nyari duit ngabisin waktu lama
-            }else{
-                this.service[i] =  this.time + 10;
-            }                       
-        }        
-    }   
-    public void sampleCase(){
-        for (int i = 0; i < this.rangeData; i++) {
+        for (int i = 0; rangeData < 10; i++) {
+            //Menghitung delay
+            if(i==0){
+                delay[i] = 0;
+            } else {
+                delay[i] = completion[i-1]-arrival[i];
+            }
             
+            //Menghitung waiting
+            waiting[i] = delay[i] + service [i];
+            
+            //Menghitung completion
+            completion[i] = arrival [i] + delay [i] + service[i];
         }
     }
     
@@ -86,4 +84,15 @@ public class AntriKeluar extends Machine {
             currentArrival = currentArrival + randArrival;
         }
     }
+    
+    public void calculateService() {
+        for (int i = 0; i < rangeData; i++) {
+            if(tiket==true){
+                service[i] = time + 5;
+            } else {
+                service[i] = time + 20;
+            }
+        }
+    }
+    
 }

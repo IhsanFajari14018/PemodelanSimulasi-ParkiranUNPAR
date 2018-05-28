@@ -1,5 +1,7 @@
 package Contoller;
 
+import java.util.Random;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -8,8 +10,7 @@ package Contoller;
 /**
  *
  * Kelas yang mensimulasikan perhitungan waktu pada saat masuk parkiran motor
- * PPAG UNPAR dengan menggunakan 1 buah mesin
- *
+ * PPAG UNPAR.
  * @author Modsim Team
  * @version 28 Mei 2018
  *
@@ -24,21 +25,20 @@ public class AntriMasuk extends Machine {
      * Variable untuk para pengendara. Disimpan dalam array merepresentasikan
      * setiap indexnya adalah nomor pelanggan.
      */
-    private int[] uang;
+    private boolean[] uang;
     private int[] service;
     private int[] arrival;
     private int[] delay;
     private int[] waiting;
     private int[] completion;
-    
+
     private int rangeData;
 
     public AntriMasuk(int nData) {
         this.rangeData = nData;
         int range = 10;
-        
-        this.uang = new int[range];
-        this.uang = new int[range];
+
+        this.uang = new boolean[range];
         this.service = new int[range];
         this.arrival = new int[range];
         this.delay = new int[range];
@@ -46,28 +46,74 @@ public class AntriMasuk extends Machine {
         this.completion = new int[range];
 
         this.time = 1; // asumsi
+        
+        //Generate
+        this.sampleCase();
+        this.calculateService();        
     }
 
     @Override
+    /**
+     * To simulate the parking system.
+     */
     public void proses() {
         for (int i = 0; i < this.rangeData; i++) {
-            // kondisi tidak pakai uang pas
-            if (this.uang[i] > 2000) {
-                this.service[i] = this.time + 5;
-            }else if(this.uang[i]==2000){
-                this.service[i] = this.time + 2;
-            // pas mu bayar ternyata ga punya uang, ngocek2 saku ga ada
-            // nyari duit ngabisin waktu lama
+            // CACULATE WAIT
+            this.waiting[i] = this.delay[i] + this.service[i];
+            
+            // CALCULATE DELAY       
+            //karena yang datang pertama itu tidak ada delay
+            if(i==0){
+                this.delay[i] = 0;
             }else{
-                this.service[i] =  this.time + 10;
-            }                       
+                this.delay[i] = this.completion[i-1] - this.arrival[i];
+            }
+            
+            // CALCULATE COMPLETION
+            this.completion[i] = this.arrival[i] + this.service[i] + this.delay[i];
         }        
     }
-    
-    public void sampleCase(){
-        for (int i = 0; i < this.rangeData; i++) {
-            
+
+    /**
+     * 
+     */
+    @Override
+    public void calculateService(){
+         // CALCULATE SERVICE
+         for (int i = 0; i < this.rangeData; i++) {
+            // kondisi tidak pakai uang pas
+            if (this.uang[i]==false) {
+                this.service[i] = this.time + 5;
+            }else{
+                this.service[i] = this.time + 2;
+            }
         }
     }
     
+    
+    /**
+     * Generate sample case for arrival.
+     */
+    public void sampleCase() {
+        Random r = new Random();
+        int currentArrival = 0;
+        
+        //GENERATE ARRIVAL
+        for (int i = 0; i < this.rangeData; i++) {
+            int temp = 0;
+
+            //arrival
+            int randArrival = r.nextInt(4) + 1;
+            this.arrival[i] = currentArrival + randArrival;
+            
+            //updating the arrival
+            currentArrival = currentArrival + randArrival;
+        }
+    }
+    
+    
+    public void variableToString(){
+        
+    }
+
 }

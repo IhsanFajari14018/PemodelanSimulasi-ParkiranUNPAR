@@ -64,9 +64,21 @@ public class AntriKeluar extends Machine {
         }        
     }
     
-    public void sampleCase(){
+    /**
+     * generate arrival
+     */
+    public void sampleCase() {
+        Random r = new Random();
+        int currentArrival = 0;
         for (int i = 0; i < this.rangeData; i++) {
+            int temp = 0;
+
+            //arrival
+            int randArrival = r.nextInt(4) + 1;
+            this.arrival[i] = currentArrival + randArrival;
             
+            //updating the arrival
+            currentArrival = currentArrival + randArrival;
         }
     }
     

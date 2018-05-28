@@ -63,11 +63,12 @@ public class AntriKeluar extends Machine {
             }                       
         }        
     }
-    
+   
     public void sampleCase(){
         for (int i = 0; i < this.rangeData; i++) {
-            
+          
+            //service
+          
         }
     }
-    
 }

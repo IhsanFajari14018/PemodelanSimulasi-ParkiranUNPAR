@@ -62,15 +62,12 @@ public class AntriKeluar extends Machine {
                 this.service[i] =  this.time + 10;
             }                       
         }        
-    }
-<<<<<<< HEAD
-   
+    }   
     public void sampleCase(){
         for (int i = 0; i < this.rangeData; i++) {
-          
-            //service
-          
-=======
+            
+        }
+    }
     
     /**
      * generate arrival
@@ -87,7 +84,6 @@ public class AntriKeluar extends Machine {
             
             //updating the arrival
             currentArrival = currentArrival + randArrival;
->>>>>>> 96e24b5dcd68d2093904896caca80571eb0f0ec1
         }
     }
 }

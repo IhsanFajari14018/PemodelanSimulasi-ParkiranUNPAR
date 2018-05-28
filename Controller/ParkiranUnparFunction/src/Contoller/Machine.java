@@ -11,4 +11,9 @@ package Contoller;
  */
 public abstract class Machine {
     public abstract void proses();
+    
+    public abstract void calculateDelay();
+    public abstract void calculateService();
+    public abstract void calculateWait();
+    public abstract void calculateCompletion();
 }

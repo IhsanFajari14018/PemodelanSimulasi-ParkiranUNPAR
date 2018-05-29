@@ -25,95 +25,110 @@ public class AntriMasuk extends Machine {
      * Variable untuk para pengendara. Disimpan dalam array merepresentasikan
      * setiap indexnya adalah nomor pelanggan.
      */
-    private boolean[] uang;
-    private int[] service;
-    private int[] arrival;
-    private int[] delay;
-    private int[] waiting;
-    private int[] completion;
+    private int[] arrival, service, delay, waiting, completion, uang;
 
-    private int rangeData;
+    private int banyakData;
 
-    public AntriMasuk(int nData) {
-        this.rangeData = nData;
-        int range = 10;
+    public AntriMasuk(int banyakData) {
+        this.banyakData = banyakData;
 
-        this.uang = new boolean[range];
-        this.service = new int[range];
-        this.arrival = new int[range];
-        this.delay = new int[range];
-        this.waiting = new int[range];
-        this.completion = new int[range];
+        this.uang = new int[banyakData];
+        this.service = new int[banyakData];
+        this.arrival = new int[banyakData];
+        this.delay = new int[banyakData];
+        this.waiting = new int[banyakData];
+        this.completion = new int[banyakData];
 
         this.time = 1; // asumsi
         
         //Generate
-        this.sampleCase();
+        //this.sampleCase();
         this.calculateService();        
     }
 
+    /**
+     * method untuk menambahkan data 
+     * @param i index
+     * @param arrival waktu kedatangan
+     * @param service waktu layanan
+     * @param uang membayar dengan uang pas atau tidak
+     */
+    public void addData(int i, int arrival, int service, int uang) {
+        this.arrival[i] = arrival;
+        this.service[i] = service;
+        this.delay[i] = 0;
+        this.waiting[i] = 0;
+        this.completion[i] = 0;
+        this.uang[i] = uang;
+    }
+    
+    /**
+     * Method untuk mengembalikan banyak data yang masuk
+     * @return banyak data dengan tipe data inteeger
+     */
+    public int getBanyakData() {
+        return this.banyakData;
+    }
+    
     @Override
     /**
      * To simulate the parking system.
      */
     public void proses() {
-        for (int i = 0; i < this.rangeData; i++) {
-            // CACULATE WAIT
-            this.waiting[i] = this.delay[i] + this.service[i];
-            
-            // CALCULATE DELAY       
-            //karena yang datang pertama itu tidak ada delay
-            if(i==0){
-                this.delay[i] = 0;
-            }else{
-                this.delay[i] = this.completion[i-1] - this.arrival[i];
+        for (int i = 0; i < this.banyakData; i++) {
+            //Menghitung delay
+            if(i == 0){
+                delay[i] = 0;
+            } else {
+                delay[i] = completion[i-1] - arrival[i];
             }
             
-            // CALCULATE COMPLETION
-            this.completion[i] = this.arrival[i] + this.service[i] + this.delay[i];
+            //Menghitung waiting
+            waiting[i] = delay[i] + service [i];
+            
+            //Menghitung completion
+            completion[i] = arrival [i] + delay [i] + service[i];
         }        
     }
 
     /**
-     * 
+     * Method untuk menghitung waktu service berdasarkan pembayaran,
+     * apakah menggunakan uang pas atau tidak
      */
     @Override
     public void calculateService(){
          // CALCULATE SERVICE
-         for (int i = 0; i < this.rangeData; i++) {
+         for (int i = 0; i < this.banyakData; i++) {
             // kondisi tidak pakai uang pas
-            if (this.uang[i]==false) {
-                this.service[i] = this.time + 5;
-            }else{
-                this.service[i] = this.time + 2;
+            if (this.uang[i] == 0) {
+                this.service[i] = this.time + 5; // asumsi ditambah 5 detik
+            }else { // kondisi pakai uang pas
+                this.service[i] = this.time + 2; //  asumsi ditambah 2 detik
             }
         }
     }
     
-    
-    /**
-     * Generate sample case for arrival.
-     */
-    public void sampleCase() {
-        Random r = new Random();
-        int currentArrival = 0;
-        
-        //GENERATE ARRIVAL
-        for (int i = 0; i < this.rangeData; i++) {
-            int temp = 0;
-
-            //arrival
-            int randArrival = r.nextInt(4) + 1;
-            this.arrival[i] = currentArrival + randArrival;
-            
-            //updating the arrival
-            currentArrival = currentArrival + randArrival;
-        }
-    }
-    
+//    /**
+//     * Generate sample case for arrival.
+//     */
+//    public void sampleCase() {
+//        Random r = new Random();
+//        int currentArrival = 0;
+//        
+//        //GENERATE ARRIVAL
+//        for (int i = 0; i < this.banyakData; i++) {
+//            int temp = 0;
+//
+//            //arrival
+//            int randArrival = r.nextInt(4) + 1;
+//            this.arrival[i] = currentArrival + randArrival;
+//            
+//            //updating the arrival
+//            currentArrival = currentArrival + randArrival;
+//        }
+//    }
     
     public void variableToString(){
         
     }
-
 }

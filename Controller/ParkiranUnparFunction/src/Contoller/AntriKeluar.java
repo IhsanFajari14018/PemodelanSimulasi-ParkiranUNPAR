@@ -24,8 +24,7 @@ public class AntriKeluar extends Machine {
      * Variable untuk para pengendara. Disimpan dalam array merepresentasikan
      * setiap indexnya adalah nomor pelanggan.
      */
-    private int[] arrival, service, delay, waiting, completion;
-    private boolean[] tiket; // kondisi kalo tiket ada di dompet atau tidak
+    private int[] arrival, service, delay, waiting, completion, tiket;
     
     private int banyakData;
 
@@ -37,7 +36,7 @@ public class AntriKeluar extends Machine {
         this.delay = new int[banyakData];
         this.waiting = new int[banyakData];
         this.completion = new int[banyakData];
-        this.tiket = new boolean[banyakData];
+        this.tiket = new int[banyakData];
 
         this.time = 1; // asumsi
     }
@@ -49,7 +48,7 @@ public class AntriKeluar extends Machine {
      * @param service waktu layanan
      * @param tiket ada atau tidaknya tiket (true / false)
      */
-    public void addData(int i, int arrival, int service, boolean tiket) {
+    public void addData(int i, int arrival, int service, int tiket) {
         this.arrival[i] = arrival;
         this.service[i] = service;
         this.delay[i] = 0;
@@ -70,7 +69,7 @@ public class AntriKeluar extends Machine {
     public void proses() {
         for (int i = 0; i < banyakData; i++) {
             //Menghitung delay
-            if(i == 1){
+            if(i == 0){
                 delay[i] = 0;
             } else {
                 delay[i] = completion[i-1] - arrival[i];
@@ -84,13 +83,31 @@ public class AntriKeluar extends Machine {
         }
     }
     
+//    /**
+//     * generate arrival
+//     */
+//    public void sampleCase() {
+//        Random r = new Random();
+//        int currentArrival = 0;
+//        for (int i = 0; i < this.banyakData; i++) {
+//            int temp = 0;
+//
+//            //arrival
+//            int randArrival = r.nextInt(4) + 1;
+//            this.arrival[i] = currentArrival + randArrival;
+//            
+//            //updating the arrival
+//            currentArrival = currentArrival + randArrival;
+//        }
+//    }
+    
     /**
      * Method untuk menghitung data service berdasarkan ada atau tidak adanya tiket
      */
     @Override
     public void calculateService() {
         for (int i = 0; i < banyakData; i++) {
-            if(this.tiket[i]){ // jika ada tiket
+            if(this.tiket[i] == 1){ // jika ada tiket
                 service[i] = time + 5; // asumsi ditambah 5 detik
             } else { //  jika tidak ada tiket
                 service[i] = time + 20; //  asumsi ditambah 20 detik

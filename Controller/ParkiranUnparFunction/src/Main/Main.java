@@ -5,10 +5,16 @@
  */
 package Main;
 
+import Contoller.*;
+
 /**
  *
  * @author SAN
  */
 public class Main {
-    
+    public static void main(String[] args) {
+        Machine amt = new AntriMasuk_1Machine(10);
+        
+        amt.proses();
+    }
 }

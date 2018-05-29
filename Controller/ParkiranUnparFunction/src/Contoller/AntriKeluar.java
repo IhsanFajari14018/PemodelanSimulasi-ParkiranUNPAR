@@ -19,44 +19,61 @@ public class AntriKeluar extends Machine {
 
     //private int uang;
     private int time; // dalam menit
-    //private boolean tiket; // kondisi kalo tiket ada di dompet atau tidak
-    private boolean tiket;
+    
     /**
      * Variable untuk para pengendara. Disimpan dalam array merepresentasikan
      * setiap indexnya adalah nomor pelanggan.
      */
-    private int[] uang;
-    private int[] service;
-    private int[] arrival;
-    private int[] delay;
-    private int[] waiting;
-    private int[] completion;
+    private int[] arrival, service, delay, waiting, completion;
+    private boolean[] tiket; // kondisi kalo tiket ada di dompet atau tidak
     
-    private int rangeData;
+    private int banyakData;
 
-    public AntriKeluar(int nData) {
-        this.rangeData = nData;
-        int range = 10;
+    public AntriKeluar(int banyakData) {
+        this.banyakData = banyakData; // banyaknya data
         
-        this.uang = new int[range];
-        this.uang = new int[range];
-        this.service = new int[range];
-        this.arrival = new int[range];
-        this.delay = new int[range];
-        this.waiting = new int[range];
-        this.completion = new int[range];
+        this.arrival = new int[banyakData];
+        this.service = new int[banyakData];
+        this.delay = new int[banyakData];
+        this.waiting = new int[banyakData];
+        this.completion = new int[banyakData];
+        this.tiket = new boolean[banyakData];
 
         this.time = 1; // asumsi
     }
 
+    /**
+     * method untuk menambahkan data 
+     * @param i index
+     * @param arrival waktu kedatangan
+     * @param service waktu layanan
+     * @param tiket ada atau tidaknya tiket (true / false)
+     */
+    public void addData(int i, int arrival, int service, boolean tiket) {
+        this.arrival[i] = arrival;
+        this.service[i] = service;
+        this.delay[i] = 0;
+        this.waiting[i] = 0;
+        this.completion[i] = 0;
+        this.tiket[i] = tiket;
+    }
+    
+    /**
+     * Method untuk mengembalikan banyak data yang masuk
+     * @return banyak data dengan tipe data inteeger
+     */
+    public int getBanyakData() {
+        return this.banyakData;
+    }
+    
     @Override
     public void proses() {
-        for (int i = 0; rangeData < 10; i++) {
+        for (int i = 0; i < banyakData; i++) {
             //Menghitung delay
-            if(i==0){
+            if(i == 1){
                 delay[i] = 0;
             } else {
-                delay[i] = completion[i-1]-arrival[i];
+                delay[i] = completion[i-1] - arrival[i];
             }
             
             //Menghitung waiting
@@ -68,31 +85,16 @@ public class AntriKeluar extends Machine {
     }
     
     /**
-     * generate arrival
+     * Method untuk menghitung data service berdasarkan ada atau tidak adanya tiket
      */
-    public void sampleCase() {
-        Random r = new Random();
-        int currentArrival = 0;
-        for (int i = 0; i < this.rangeData; i++) {
-            int temp = 0;
-
-            //arrival
-            int randArrival = r.nextInt(4) + 1;
-            this.arrival[i] = currentArrival + randArrival;
-            
-            //updating the arrival
-            currentArrival = currentArrival + randArrival;
-        }
-    }
-    
+    @Override
     public void calculateService() {
-        for (int i = 0; i < rangeData; i++) {
-            if(tiket==true){
-                service[i] = time + 5;
-            } else {
-                service[i] = time + 20;
+        for (int i = 0; i < banyakData; i++) {
+            if(this.tiket[i]){ // jika ada tiket
+                service[i] = time + 5; // asumsi ditambah 5 detik
+            } else { //  jika tidak ada tiket
+                service[i] = time + 20; //  asumsi ditambah 20 detik
             }
         }
     }
-    
 }

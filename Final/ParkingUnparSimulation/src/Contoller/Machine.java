@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Main;
+package Contoller;
 
 /**
  *
- * @author farha
+ * @author SAN
  */
-class GUI {
-    
+public abstract class Machine {
+    public abstract void proses();
+    public abstract void calculateService(int m);
 }

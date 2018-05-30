@@ -38,7 +38,6 @@ public class AntriMasuk_2Machine extends Machine {
      * Machine 2 Variable untuk para pengendara. Disimpan dalam array
      * merepresentasikan setiap indexnya adalah nomor pelanggan.
      */
-    private int[] uang_2;
     private int[] service_2;
     private int[] arrival_2;
     private int[] delay_2;
@@ -53,6 +52,8 @@ public class AntriMasuk_2Machine extends Machine {
     private String result;
     private int currentArrival;
     private int pointer;
+    private int pointerService;
+    private int[] orang;
 
     /**
      * Machine Constructor
@@ -70,7 +71,6 @@ public class AntriMasuk_2Machine extends Machine {
         this.completion = new int[range];
 
         //MACHINE 2
-        this.uang_2 = new int[range];
         this.service_2 = new int[range];
         this.arrival_2 = new int[range];
         this.delay_2 = new int[range];
@@ -78,33 +78,10 @@ public class AntriMasuk_2Machine extends Machine {
         this.completion_2 = new int[range];
 
         this.time = 1; // asumsi
+        this.pointer = 2;
+        this.pointerService = 2;
 
-        this.generateUang();
-    }
-
-    /**
-     * Money generator. Do they paid with 2000 or higher value of money.
-     */
-    private void generateUang() {
-        Random r = new Random();
-
-        //WITH RANDOM
-        //MACHINE 1
-        // for (int i = 0; i < this.rangeData; i++) {
-        //     int temp = r.nextInt(2);
-        //     this.uang[i] = temp != 0;
-        // }
-        // //MACHINE 2
-        // for (int i = 0; i < this.rangeData; i++) {
-        //     int temp = r.nextInt(2);
-        //     this.uang_2[i] = temp != 0;
-        // }
-
-
-        //NOT RANDOM
-        this.uang = new int[]{0,0,1,1,1};
-        this.uang_2 = new int[]{0,0,1,1,1};
-
+        this.createDummy();
     }
 
     /**
@@ -113,12 +90,11 @@ public class AntriMasuk_2Machine extends Machine {
     @Override
     public void proses() {
         for (int i = 0; i < this.rangeData; i++) {
-            // CALCULATE SERVICE
-
-            this.calculateService();
-
             // CALCULATE ARRIVAL
-            this.calculateArrival();
+            int m = this.calculateArrival();
+
+            // CALCULATE SERVICE
+            this.calculateService(m);
 
             // CALCULATE DELAY
             //karena yang datang pertama itu tidak ada delay
@@ -129,6 +105,12 @@ public class AntriMasuk_2Machine extends Machine {
 
             // CALCULATE COMPLETION
             this.calculateCompletion();
+
+            if (m == 1) {
+                this.updateIndex(1);
+            } else {
+                this.updateIndex(2);
+            }
         }
 
         this.variableToString();
@@ -141,8 +123,6 @@ public class AntriMasuk_2Machine extends Machine {
     public void calculateCompletion() {
         int i = this.index;
         int i2 = this.index_2;
-        System.out.println("isii "+i+" "+i2);
-
 
         this.completion[i] = this.arrival[i] + this.service[i] + this.delay[i];
         //System.out.print("c1"+this.completion[i]+" ");
@@ -175,101 +155,69 @@ public class AntriMasuk_2Machine extends Machine {
         } else if (i2 == 0) {
             this.delay_2[i2] = 0;
         } else {
-            this.delay[i] = this.completion[i - 1] - this.arrival[i];
-            this.delay_2[i2] = this.completion_2[i2 - 1] - this.arrival_2[i2];
+            int temp1 = this.completion[i - 1] - this.arrival[i];
+            if (temp1 < 0) {
+                temp1 = 0;
+            }
+            this.delay[i] = temp1;
+
+            int temp2 = this.completion_2[i2 - 1] - this.arrival_2[i2];
+            if (temp2 < 0) {
+                temp2 = 0;
+            }
+            this.delay_2[i2] = temp2;
         }
     }
 
     /**
      * Generate service.
+     * @param m
      */
+    
     @Override
-    public void calculateService() {
-        int i = this.index;
-        int i2 = this.index_2;
+    public void calculateService(int m) {
 
-        // CALCULATE SERVICE in machine 1
-        // kondisi tidak pakai uang pas
-        if (this.uang[i] == 0) {
-            this.service[i] = 5;
+        if (m == 1) {
+            if (this.uang[this.pointerService] == 0) {
+                this.service[this.index] = 5;
+            } else {
+                this.service[this.index] = 2;
+            }
         } else {
-            this.service[i] = 2;
-        }
 
-        // CALCULATE SERVICE in machine 2
-        // kondisi tidak pakai uang pas
-        if (this.uang_2[i2] == 0) {
-            this.service_2[i2] = 5;
-        } else {
-            this.service_2[i2] = 2;
+            if (this.uang[this.pointerService] == 0) {
+                this.service_2[this.index_2] = 5;
+            } else {
+                this.service_2[this.index_2] = 2;
+            }
         }
     }
 
     /**
      * Generate arrival.
      */
-    public void calculateArrival() {
-        Random r = new Random();
-        this.currentArrival = 0;
-        int i = this.index;
-        int i2 = this.index_2;
-
-        //GENERATE ARRIVAL TIME
-        //int randArrival = r.nextInt(4) + 1; //Datanya random dulu buat sementara
-        int[] randArrival = this.arrivalDummy();
-        //System.out.println(randArrival+"INPUT");
-
-        if(i==0){ //Awalan
-            this.arrival[i] = randArrival[this.pointer];
-            //System.out.println(randArrival+" A-1");
-            this.updateIndex(1);
-        }else if(i2==0){ //Awalan
-            this.arrival_2[i2] = randArrival[this.pointer];
-            //System.out.println(randArrival+" A-2");
-            this.updateIndex(2);
-        }else if(this.completion[i-1] < this.completion_2[i2-1]){
-            this.arrival[i] = randArrival[this.pointer];
-            this.updateIndex(1);
-        }else if(this.completion[i-1] > this.completion_2[i2-1]){
-            this.arrival_2[i2] = randArrival[this.pointer];
-            this.updateIndex(2);
+    public int calculateArrival() {
+        if (this.index == 0) {
+            this.arrival[0] = this.orang[0];
+            return 1;
+        } else if (this.index_2 == 0) {
+            this.arrival_2[0] = this.orang[1];
+            return 2;
+        } else if (this.completion[index - 1] < this.completion_2[this.index_2 - 1]) {
+            this.arrival[this.index] = this.orang[this.pointer];
+            this.pointer++;
+            return 1;
+        } else if (this.completion[index - 1] > this.completion_2[this.index_2 - 1]) {
+            this.arrival_2[this.index_2] = this.orang[this.pointer];
+            this.pointer++;
+            return 2;
         }
-
-        this.pointer++;
-
-
-//        else if(this.completion[i-1] < this.completion_2[i2-1]){
-//            System.out.println("asdasdas");
-//            this.arrival[i] = randArrival;
-//            this.updateIndex(1);
-//        }else if(this.completion[i-1] > this.completion_2[i2-1]){
-//            System.out.println("KADIEU?");
-//            this.arrival_2[i2] = randArrival;
-//            this.updateIndex(2);
-//        }
-
-//        if (this.arrival[i] == 0) { //Kalau kosong //First attempt
-//            //this.arrival[i] = this.calculateCurrentArrival(1) + randArrival;
-//            this.arrival[i] = randArrival;
-//            this.updateIndex(1);
-//        } else if (this.arrival_2[i] == 0) {
-//            this.arrival_2[i] = this.calculateCurrentArrival(2) + randArrival;
-//            this.updateIndex(2);
-//        } else if (this.completion[i - 1] < this.completion_2[i2 - 1]) { // Jika m1 selesai sblm m2
-//            this.arrival[i] = this.calculateCurrentArrival(1) + randArrival;
-//            this.updateIndex(1);
-//        } else if (this.completion_2[i2 - 1] < this.completion[i - 1]) { //jika m2 slsai sblm m1
-//            this.arrival_2[i2] = this.calculateCurrentArrival(2) + randArrival;
-//            this.updateIndex(2);
-//        }
-
-        //updating the arrival
-        //his.currentArrival = this.currentArrival + randArrival;
+        return -1;
     }
 
-    private int[] arrivalDummy(){
-        int[] res = {1,4,5,6,9};
-        return res;
+    private void createDummy() {
+        this.uang = new int[]{0, 0, 1, 1, 1};
+        this.orang = new int[]{1, 4, 5, 6, 9};
     }
 
     /**
@@ -281,33 +229,16 @@ public class AntriMasuk_2Machine extends Machine {
      * @return
      */
     private int calculateCurrentArrival(int machine) {
-
-        if (machine == 1) {
-            //calculate current max value of arrival in this MACHINE
-            int res = 0;
-            for (int i = 0; i < this.rangeData; i++) {
-                res+= this.arrival[i];
-            }
-            System.out.println(res+" //");
-            return res;
-        } else if (machine == 2) {
-//            int res = 0;
-//            res += this.arrival_2[i];
-//            //System.out.print(res+"res2 ");
-//            System.out.println();
-//            return res;
-        }
-
-        return -1; //wrong input
+        return 0;
     }
 
     /**
      * Updating the index.
      */
     private void updateIndex(int machine) {
-        if ((machine == 1) && (this.index != this.rangeData-1)) {
+        if ((machine == 1) && (this.index != this.rangeData - 1)) {
             this.index++;
-        } else if ((machine == 2) && (this.index_2 != this.rangeData-1)) {
+        } else if ((machine == 2) && (this.index_2 != this.rangeData - 1)) {
             this.index_2++;
         }
     }
@@ -315,108 +246,140 @@ public class AntriMasuk_2Machine extends Machine {
     public void variableToString() {
         this.result = new String();
         String temp = new String();
-
+        boolean print = true;
         // MACHINE 1
         // ARRIVAL
         this.result = "a: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.arrival[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        //System.out.println(this.result+"A");
-        temp = new String();
+        if (true) {
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival[i] == 0) {
+                    break;
+                }
+                temp += this.arrival[i] + ",";
 
-        //SERVICE
-        this.result += "s: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.service[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        //System.out.println(temp+"S");
-        temp = new String();
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            //System.out.println(this.result+"A");
+            temp = new String();
 
-        //DELAY
-        this.result += "d: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.delay[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        temp = new String();
+            //SERVICE
+            this.result += "s: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival[i] == 0) {
+                    break;
+                }
+                temp += this.service[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            //System.out.println(temp+"S");
+            temp = new String();
 
-        //WAIT
-        this.result += "w: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.waiting[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        temp = new String();
+            //DELAY
+            this.result += "d: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival[i] == 0) {
+                    break;
+                }
+                temp += this.delay[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            temp = new String();
 
-        //COMPLETION
-        this.result += "c: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.completion[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        temp ="";
+            //WAIT
+            this.result += "w: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival[i] == 0) {
+                    break;
+                }
+                temp += this.waiting[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            temp = new String();
 
+            //COMPLETION
+            this.result += "c: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival[i] == 0) {
+                    break;
+                }
+                temp += this.completion[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            temp = "";
+        }
         this.result += "\n";
 
         // MACHINE 2
         // ARRIVAL
         this.result += "a: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.arrival_2[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result +=temp+"\n";
-        //System.out.println(this.result+"A");
-        temp = new String();
+        if (true) {
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival_2[i] == 0) {
+                    break;
+                }
+                temp += this.arrival_2[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            //System.out.println(this.result+"A");
+            temp = new String();
 
-        //SERVICE
-        this.result += "s: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.service_2[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        //System.out.println(temp+"S");
-        temp = new String();
+            //SERVICE
+            this.result += "s: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival_2[i] == 0) {
+                    break;
+                }
+                temp += this.service_2[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            //System.out.println(temp+"S");
+            temp = new String();
 
-        //DELAY
-        this.result += "d: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.delay_2[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        temp = new String();
+            //DELAY
+            this.result += "d: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival_2[i] == 0) {
+                    break;
+                }
+                temp += this.delay_2[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            temp = new String();
 
-        //WAIT
-        this.result += "w: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.waiting_2[i] + ",";
-        }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-        temp = new String();
+            //WAIT
+            this.result += "w: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival_2[i] == 0) {
+                    break;
+                }
+                temp += this.waiting_2[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
+            temp = new String();
 
-        //COMPLETION
-        this.result += "c: ";
-        for (int i = 0; i < this.rangeData; i++) {
-            temp += this.completion_2[i] + ",";
+            //COMPLETION
+            this.result += "c: ";
+            for (int i = 0; i < this.rangeData; i++) {
+                if (this.arrival_2[i] == 0) {
+                    break;
+                }
+                temp += this.completion_2[i] + ",";
+            }
+            temp = temp.substring(0, temp.length() - 1);
+            this.result += temp + "\n";
         }
-        temp = temp.substring(0, temp.length() - 1);
-        this.result += temp + "\n";
-
     }
 
     public void printOut() {
         System.out.println(this.result);
     }
-
 }

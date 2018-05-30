@@ -10,12 +10,9 @@ package Contoller;
  * @author SAN
  */
 public abstract class Machine {
-    
-    /**
-     * Process the queue with 1 machine
-     */
     public abstract void proses();
     
-    public abstract void calculateService();
+    public abstract void calculateService(int m);
     
+    //public abstract String printOut();
 }

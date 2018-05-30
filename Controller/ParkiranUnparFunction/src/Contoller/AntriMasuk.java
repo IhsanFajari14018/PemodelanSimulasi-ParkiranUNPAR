@@ -15,7 +15,7 @@ import java.util.Random;
  * @version 28 Mei 2018
  *
  */
-public class AntriKeluar extends Machine {
+public class AntriMasuk extends Machine {
     /**
      * Variable untuk para pengendara.
      * Disimpan dalam array yang merepresentasikan setiap index
@@ -23,7 +23,7 @@ public class AntriKeluar extends Machine {
      */
     
     private int time; // asumsi dalam detik
-    private boolean[] tiket;
+    private boolean[] uang;
     private int[] service, arrival, delay, waiting, completion;
     private int rangeData, index, currentArrival;
     private String result;
@@ -32,10 +32,10 @@ public class AntriKeluar extends Machine {
      * Contructor
      * @param nData 
      */
-    public AntriKeluar(int nData) {
+    public AntriMasuk(int nData) {
         this.rangeData = nData;
 
-        this.tiket = new boolean[rangeData];
+        this.uang = new boolean[rangeData];
         this.service = new int[rangeData];
         this.arrival = new int[rangeData];
         this.delay = new int[rangeData];
@@ -43,7 +43,7 @@ public class AntriKeluar extends Machine {
         this.completion = new int[rangeData];
         this.currentArrival = this.time = 0;
         
-        this.generateTiket();
+        this.generateUang();
     }
     
     /**
@@ -51,16 +51,15 @@ public class AntriKeluar extends Machine {
      * @param i index
      * @param arrival waktu kedatangan
      * @param service waktu layanan
-     * @param uang
      * @param tiket ada atau tidaknya tiket (true / false)
      */
-    public void addData(int i, int arrival, int service, boolean tiket) {
+    public void addData(int i, int arrival, int service, boolean uang) {
         this.arrival[i] = arrival;
         this.service[i] = service;
         this.delay[i] = 0;
         this.waiting[i] = 0;
         this.completion[i] = 0;
-        this.tiket[i] = tiket;
+        this.uang[i] = uang;
     }
     
     /**
@@ -72,20 +71,20 @@ public class AntriKeluar extends Machine {
     }
     
     /**
-     * Generate sample case for ticket.
+     * Generate sample case for money.
      */
-    private void generateTiket(){
+    private void generateUang(){
         Random r = new Random();        
         for (int i = 0; i < this.rangeData; i++) {
             int temp = r.nextInt(2);
-            this.tiket[i] = temp != 0;
+            this.uang[i] = temp != 0;
         }
     }
 
+    @Override
     /**
      * simulate parking system.
      */
-    @Override
     public void proses() {
 
         for (int i = 0; i < this.rangeData; i++) {
@@ -122,13 +121,13 @@ public class AntriKeluar extends Machine {
         int i = this.index;
         // CALCULATE SERVICE
         
-        // kondisi tiket ada
-        if (this.tiket[i]) {
-            this.service[i] = this.time + 5;
+        // kondisi pakai uang pas
+        if (this.uang[i]) {
+            this.service[i] = this.time + 2;
         }
-        // kondisi tiket tidak ada
+        // kondisi tidak pakai uang pas
         else {
-            this.service[i] = this.time + 20;
+            this.service[i] = this.time + 5;
         }
     }
 

@@ -1,4 +1,5 @@
 package Contoller;
+
 import java.util.Random;
 
 /*
@@ -9,46 +10,51 @@ import java.util.Random;
 /**
  *
  * Kelas yang mensimulasikan perhitungan waktu pada saat masuk parkiran motor
- * PPAG UNPAR dengan menggunakan 1 buah mesin
- *
+ * PPAG UNPAR.
  * @author Modsim Team
  * @version 28 Mei 2018
  *
  */
 public class AntriKeluar extends Machine {
-
-    //private int uang;
-    private int time; // dalam menit
+    /**
+     * Variable untuk para pengendara.
+     * Disimpan dalam array yang merepresentasikan setiap index
+     * dimana indexnya adalah nomor pelanggan.
+     */
+    
+    private int time; // asumsi dalam detik
+    private boolean[] tiket;
+    private int[] service, arrival, delay, waiting, completion;
+    private int rangeData, index, currentArrival;
+    private String result;
     
     /**
-     * Variable untuk para pengendara. Disimpan dalam array merepresentasikan
-     * setiap indexnya adalah nomor pelanggan.
+     * Contructor
+     * @param nData 
      */
-    private int[] arrival, service, delay, waiting, completion, tiket;
-    
-    private int banyakData;
+    public AntriKeluar(int nData) {
+        this.rangeData = nData;
 
-    public AntriKeluar(int banyakData) {
-        this.banyakData = banyakData; // banyaknya data
+        this.tiket = new boolean[rangeData];
+        this.service = new int[rangeData];
+        this.arrival = new int[rangeData];
+        this.delay = new int[rangeData];
+        this.waiting = new int[rangeData];
+        this.completion = new int[rangeData];
+        this.currentArrival = this.time = 0;
         
-        this.arrival = new int[banyakData];
-        this.service = new int[banyakData];
-        this.delay = new int[banyakData];
-        this.waiting = new int[banyakData];
-        this.completion = new int[banyakData];
-        this.tiket = new int[banyakData];
-
-        this.time = 1; // asumsi
+        this.generateTiket();
     }
-
+    
     /**
      * method untuk menambahkan data 
      * @param i index
      * @param arrival waktu kedatangan
      * @param service waktu layanan
+     * @param uang
      * @param tiket ada atau tidaknya tiket (true / false)
      */
-    public void addData(int i, int arrival, int service, int tiket) {
+    public void addData(int i, int arrival, int service, boolean tiket) {
         this.arrival[i] = arrival;
         this.service[i] = service;
         this.delay[i] = 0;
@@ -61,57 +67,160 @@ public class AntriKeluar extends Machine {
      * Method untuk mengembalikan banyak data yang masuk
      * @return banyak data dengan tipe data inteeger
      */
-    public int getBanyakData() {
-        return this.banyakData;
+    public int getRangeData() {
+        return this.rangeData;
     }
-    
-    @Override
-    public void proses() {
-        for (int i = 0; i < banyakData; i++) {
-            //Menghitung delay
-            if(i == 0){
-                delay[i] = 0;
-            } else {
-                delay[i] = completion[i-1] - arrival[i];
-            }
-            
-            //Menghitung waiting
-            waiting[i] = delay[i] + service [i];
-            
-            //Menghitung completion
-            completion[i] = arrival [i] + delay [i] + service[i];
-        }
-    }
-    
-//    /**
-//     * generate arrival
-//     */
-//    public void sampleCase() {
-//        Random r = new Random();
-//        int currentArrival = 0;
-//        for (int i = 0; i < this.banyakData; i++) {
-//            int temp = 0;
-//
-//            //arrival
-//            int randArrival = r.nextInt(4) + 1;
-//            this.arrival[i] = currentArrival + randArrival;
-//            
-//            //updating the arrival
-//            currentArrival = currentArrival + randArrival;
-//        }
-//    }
     
     /**
-     * Method untuk menghitung data service berdasarkan ada atau tidak adanya tiket
+     * Generate sample case for ticket.
+     */
+    private void generateTiket(){
+        Random r = new Random();        
+        for (int i = 0; i < this.rangeData; i++) {
+            int temp = r.nextInt(2);
+            this.tiket[i] = temp != 0;
+        }
+    }
+
+    /**
+     * simulate parking system.
      */
     @Override
-    public void calculateService() {
-        for (int i = 0; i < banyakData; i++) {
-            if(this.tiket[i] == 1){ // jika ada tiket
-                service[i] = time + 5; // asumsi ditambah 5 detik
-            } else { //  jika tidak ada tiket
-                service[i] = time + 20; //  asumsi ditambah 20 detik
+    public void proses() {
+
+        for (int i = 0; i < this.rangeData; i++) {
+
+            // CALCULATE ARRIVAL
+            this.calculateArrival();
+
+            // CALCULATE SERVICE
+            this.calculateService();
+            
+            // UPDATE INDEX
+            this.updateIndex();
+
+            // CALCULATE DELAY       
+            //karena yang datang pertama itu tidak ada delay
+            if (i == 0) {
+                this.delay[i] = 0;
+            } else {
+                this.delay[i] = this.completion[i - 1] - this.arrival[i];
             }
+            
+            // CACULATE WAIT
+            this.waiting[i] = this.delay[i] + this.service[i];
+
+            // CALCULATE COMPLETION
+            this.completion[i] = this.arrival[i] + this.service[i] + this.delay[i];
         }
+    }
+
+    /**
+     * Generate sample case for service.
+     */
+    private void calculateService() {
+        int i = this.index;
+        // CALCULATE SERVICE
+        
+        // kondisi tiket ada
+        if (this.tiket[i]) {
+            this.service[i] = this.time + 5;
+        }
+        // kondisi tiket tidak ada
+        else {
+            this.service[i] = this.time + 20;
+        }
+    }
+
+    /**
+     * Generate sample case for arrival.
+     */
+    private void calculateArrival() {
+        Random r = new Random();
+        int i = this.index;
+
+        //GENERATE ARRIVAL
+        int temp = 0;
+
+        //arrival
+        int randArrival = r.nextInt(4) + 1;
+        this.arrival[i] = this.currentArrival + randArrival;
+        //System.out.print(this.arrival[i]+"//");
+
+        //updating the arrival
+        this.currentArrival = this.currentArrival + randArrival;
+    }
+    
+    /**
+     * Updating the index.
+     */
+    private void updateIndex(){
+        this.index++;
+    }
+    
+    /**
+     * Make Result to String
+     */
+    private void variableToString() {
+        this.result = new String();
+        String temp = new String();
+        //System.out.println("");
+        
+        //ARRIVAL 
+        this.result ="a: ";
+        for (int i = 0; i < this.rangeData; i++) {
+            temp += this.arrival[i]+",";
+        }
+        temp = temp.substring(0, temp.length()-1);
+        this.result += temp+"\n";
+        //System.out.println(this.result+"A");
+        temp = new String();
+        
+        //SERVICE
+        this.result +="s: ";
+        for (int i = 0; i < this.rangeData; i++) {
+            temp += this.service[i]+",";
+        }
+        temp = temp.substring(0, temp.length()-1);
+        this.result += temp+"\n";
+        //System.out.println(temp+"S");
+        temp = new String();
+        
+        //DELAY
+        this.result +="d: ";
+        for (int i = 0; i < this.rangeData; i++) {
+            temp += this.delay[i]+",";
+        }
+        temp = temp.substring(0, temp.length()-1);
+        this.result += temp+"\n";
+        temp = new String();
+        
+        //WAIT
+        this.result +="w: ";
+        for (int i = 0; i < this.rangeData; i++) {
+            temp += this.waiting[i]+",";
+        }
+        temp = temp.substring(0, temp.length()-1);
+        this.result += temp+"\n";
+        temp = new String();
+        
+        //COMPLETION
+        this.result +="c: ";
+        for (int i = 0; i < this.rangeData; i++) {
+            temp += this.completion[i]+",";
+        }
+        temp = temp.substring(0, temp.length()-1);
+        this.result += temp+"\n";
+        
+    }
+    
+    /**
+     * Print result
+     * @return result
+     */
+    @Override
+    public String printOut() {
+        variableToString();
+        return this.result;
     }
 }

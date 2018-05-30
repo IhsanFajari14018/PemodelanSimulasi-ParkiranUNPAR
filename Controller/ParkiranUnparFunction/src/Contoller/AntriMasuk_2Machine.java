@@ -171,7 +171,9 @@ public class AntriMasuk_2Machine extends Machine {
 
     /**
      * Generate service.
+     * @param m
      */
+    
     @Override
     public void calculateService(int m) {
 
@@ -380,5 +382,4 @@ public class AntriMasuk_2Machine extends Machine {
     public void printOut() {
         System.out.println(this.result);
     }
-
 }

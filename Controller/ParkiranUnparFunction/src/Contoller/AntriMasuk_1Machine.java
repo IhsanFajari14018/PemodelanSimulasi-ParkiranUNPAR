@@ -15,7 +15,7 @@ import java.util.Random;
  * @version 28 Mei 2018
  *
  */
-public class AntriMasuk_1Machine extends Machine {
+public class AntriMasuk_1Machine{
 
     //private int uang;
     private int time; // dalam menit
@@ -47,7 +47,7 @@ public class AntriMasuk_1Machine extends Machine {
         this.delay = new int[range];
         this.waiting = new int[range];
         this.completion = new int[range];
-
+        this.currentArrival = 0;
         this.time = 1; // asumsi
         
         this.generateUang();
@@ -61,7 +61,6 @@ public class AntriMasuk_1Machine extends Machine {
         }
     }
 
-    @Override
     /**
      * To simulate the parking system.
      */
@@ -101,7 +100,6 @@ public class AntriMasuk_1Machine extends Machine {
     /**
      *
      */
-    @Override
     public void calculateService() {
         int i = this.index;
         // CALCULATE SERVICE
@@ -118,7 +116,7 @@ public class AntriMasuk_1Machine extends Machine {
      */
     public void calculateArrival() {
         Random r = new Random();
-        this.currentArrival = 0;
+        //this.currentArrival = 0;
         int i = this.index;
 
         //arrival
@@ -192,5 +190,4 @@ public class AntriMasuk_1Machine extends Machine {
     public void printOut() {
         System.out.println(this.result);    
     }
-
 }

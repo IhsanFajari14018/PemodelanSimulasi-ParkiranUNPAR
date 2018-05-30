@@ -12,5 +12,7 @@ package Contoller;
 public abstract class Machine {
     public abstract void proses();
     
-    public abstract String printOut();
+    public abstract void calculateService(int m);
+    
+    //public abstract String printOut();
 }

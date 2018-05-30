@@ -121,9 +121,6 @@ public class AntriMasuk_1Machine extends Machine {
         this.currentArrival = 0;
         int i = this.index;
 
-        //GENERATE ARRIVAL
-        int temp = 0;
-
         //arrival
         int randArrival = r.nextInt(4) + 1;
         this.arrival[i] = this.currentArrival + randArrival;
@@ -143,7 +140,6 @@ public class AntriMasuk_1Machine extends Machine {
     public void variableToString() {
         this.result = new String();
         String temp = new String();
-        //System.out.println("");
         
         //ARRIVAL 
         this.result ="a: ";

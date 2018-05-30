@@ -22,17 +22,21 @@ import javax.swing.JFileChooser;
  */
 public class OpenFile {
 
-    String[] arrival;
-    String[] uang;
+    String[] tempArrival;
+    String[] tempUang;
+    int[] arrival, uang;
     String jumlahMesin;
     String mode;
     JFileChooser fileChooser = new JFileChooser();
     StringBuilder sb = new StringBuilder();
+    String filePathName;
 
     public void PickMe() throws Exception {
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 
             java.io.File file = fileChooser.getSelectedFile();
+            String filePath = file.getAbsolutePath();
+            filePathName = filePath;
 
             Scanner input = new Scanner(file);
             while (input.hasNext()) {
@@ -46,7 +50,8 @@ public class OpenFile {
     }
 
     public String bacaInput() {
-        File file = new File("C:\\Users\\farha\\Documents\\NetBeansProjects\\ParkiranUnparFunction\\coba.txt");
+        //File file = new File("C:\\Users\\farha\\Documents\\NetBeansProjects\\ParkiranUnparFunction\\coba.txt");
+        File file = new File(filePathName);
         String row = "";
 
         //File file = new File("D:\\Data\\Rendra\\Kuliah\\Jaringan Syaraf Tiruan\\09. Tugas Besar\\Program\\JSTSom\\fileIkan.txt");
@@ -58,28 +63,34 @@ public class OpenFile {
             Object[] lines = br.lines().toArray();
 
             for (int i = 0; i < lines.length; i++) {
-                row = lines[i].toString() + "\n";
+                //row = lines[i].toString() + "\n";
+                row = lines[i].toString();
                 if (i == 0) {
                     String[] hasil = row.split("=");
                     jumlahMesin = hasil[1];
-                } else if (i == 1) {
-                    this.arrival = row.split("=");
-                    mode = this.arrival[1];
-
-                } else if (i == 2) {
-                    this.uang = row.split("=");
-
-                    this.uang = this.uang[1].split(",");
-
-                } else if (i == 3) {
-                    this.uang = row.split("=");
-
-                    this.uang = this.uang[1].split(",");
-
+                } else if (i >= 1) {
+                    if(i == 1) {
+                        this.tempArrival = row.split("=");
+                        mode = this.tempArrival[1];
+                    }
+                    else {
+                        String[] temp = row.split("=");
+                        if(temp[0].equals("a")) {
+                            tempArrival = temp[1].split(",");
+                            arrival = new int[tempArrival.length];
+                            for(int j = 0;j<arrival.length;j++) {
+                                arrival[j] = Integer.parseInt(tempArrival[j]);
+                            }
+                        }
+                        else {
+                            tempUang = temp[1].split(",");
+                            uang = new int[tempUang.length];
+                            for(int j = 0;j<uang.length;j++) {
+                                uang[j] = Integer.parseInt(tempUang[j]);
+                            }
+                        }
+                    }
                 }
-
-                // model.addRow(row);
-                //String row = lines[i];
             }
 
         } catch (FileNotFoundException ex) {
@@ -87,5 +98,4 @@ public class OpenFile {
         }
         return row;
     }
-
 }
